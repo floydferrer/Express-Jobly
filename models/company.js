@@ -49,15 +49,38 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
-    const companiesRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
+  static async findAll(data) {
+    let whereSql = ''
+    let valuesSql;
+    if(data) {
+      const { setCols, values } = sqlForPartialUpdate(
+        data,
+        {
+          name: "name",
+          minEmployees: "num_employees",
+          maxEmployees: "num_employees"
+        }
+      )
+      // let cols = setCols.map(c => c);
+      // console.log(cols);
+      whereSql = ` WHERE ${setCols.replaceAll(',', ' AND')} `; //need to map out each setCols and combine with 'AND'
+      valuesSql = values;
+      console.log('whereSql: ' + whereSql);
+      console.log('setCols: ' + setCols);
+      console.log('values: ' + values);
+    }
+    console.log('valuesSql: ' +valuesSql);
+    const querySql = `
+      SELECT handle,
+      name,
+      description,
+      num_employees AS "numEmployees",
+      logo_url AS "logoUrl"
+      FROM companies` +
+      whereSql +
+      `ORDER BY name`
+    console.log('querySql: ' + querySql);
+    const companiesRes = await db.query(querySql, [...valuesSql]);
     return companiesRes.rows;
   }
 

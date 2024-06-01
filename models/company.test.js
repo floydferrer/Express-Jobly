@@ -60,7 +60,7 @@ describe("create", function () {
 
 describe("findAll", function () {
   test("works: no filter", async function () {
-    let companies = await Company.findAll();
+    let companies = await Company.findAll({'name': 'test', 'minEmployees': 1, 'maxEmployees': 10});
     expect(companies).toEqual([
       {
         handle: "c1",
