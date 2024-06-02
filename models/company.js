@@ -2,7 +2,7 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
-const { sqlForPartialUpdate } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlForCompanyFilter } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
@@ -52,8 +52,9 @@ class Company {
   static async findAll(data) {
     let whereSql = ''
     let valuesSql;
-    if(data) {
-      const { setCols, values } = sqlForPartialUpdate(
+    // console.log(Object.keys(data).length);
+    if(Object.keys(data).length > 0) {
+      const { setCols, values } = sqlForCompanyFilter(
         data,
         {
           name: "name",
@@ -63,7 +64,7 @@ class Company {
       )
       // let cols = setCols.map(c => c);
       // console.log(cols);
-      whereSql = ` WHERE ${setCols.replaceAll(',', ' AND')} `; //need to map out each setCols and combine with 'AND'
+      whereSql = ` WHERE ${setCols.replaceAll(',', ' AND')}`; //need to map out each setCols and combine with 'AND'
       valuesSql = values;
       console.log('whereSql: ' + whereSql);
       console.log('setCols: ' + setCols);
@@ -78,9 +79,9 @@ class Company {
       logo_url AS "logoUrl"
       FROM companies` +
       whereSql +
-      `ORDER BY name`
+      ` ORDER BY name`
     console.log('querySql: ' + querySql);
-    const companiesRes = await db.query(querySql, [...valuesSql]);
+    const companiesRes = await db.query(querySql, (Object.keys(data).length > 0) ? [...valuesSql] : '');
     return companiesRes.rows;
   }
 
