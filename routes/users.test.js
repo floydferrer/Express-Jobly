@@ -12,6 +12,7 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
+  u2Token,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -22,7 +23,7 @@ afterAll(commonAfterAll);
 /************************************** POST /users */
 
 describe("POST /users", function () {
-  test("works for users: create non-admin", async function () {
+  test("works for admin users: create non-admin", async function () {
     const resp = await request(app)
         .post("/users")
         .send({
@@ -46,7 +47,7 @@ describe("POST /users", function () {
     });
   });
 
-  test("works for users: create admin", async function () {
+  test("works for admin users: create admin", async function () {
     const resp = await request(app)
         .post("/users")
         .send({
@@ -70,7 +71,7 @@ describe("POST /users", function () {
     });
   });
 
-  test("unauth for anon", async function () {
+  test("unauth to create users", async function () {
     const resp = await request(app)
         .post("/users")
         .send({
@@ -124,7 +125,7 @@ describe("GET /users", function () {
           firstName: "U1F",
           lastName: "U1L",
           email: "user1@user.com",
-          isAdmin: false,
+          isAdmin: true,
         },
         {
           username: "u2",
@@ -144,7 +145,7 @@ describe("GET /users", function () {
     });
   });
 
-  test("unauth for anon", async function () {
+  test("unauth to view all users", async function () {
     const resp = await request(app)
         .get("/users");
     expect(resp.statusCode).toEqual(401);
@@ -175,9 +176,16 @@ describe("GET /users/:username", function () {
         firstName: "U1F",
         lastName: "U1L",
         email: "user1@user.com",
-        isAdmin: false,
+        isAdmin: true,
       },
     });
+  });
+  
+  test("unauth: not same user", async function () {
+    const resp = await request(app)
+        .get(`/users/u1`)
+        .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {
@@ -210,12 +218,12 @@ describe("PATCH /users/:username", () => {
         firstName: "New",
         lastName: "U1L",
         email: "user1@user.com",
-        isAdmin: false,
+        isAdmin: true,
       },
     });
   });
 
-  test("unauth for anon", async function () {
+  test("unauth to update user", async function () {
     const resp = await request(app)
         .patch(`/users/u1`)
         .send({
@@ -257,7 +265,7 @@ describe("PATCH /users/:username", () => {
         firstName: "U1F",
         lastName: "U1L",
         email: "user1@user.com",
-        isAdmin: false,
+        isAdmin: true,
       },
     });
     const isSuccessful = await User.authenticate("u1", "new-password");
@@ -275,7 +283,7 @@ describe("DELETE /users/:username", function () {
     expect(resp.body).toEqual({ deleted: "u1" });
   });
 
-  test("unauth for anon", async function () {
+  test("unauth to delete user", async function () {
     const resp = await request(app)
         .delete(`/users/u1`);
     expect(resp.statusCode).toEqual(401);
