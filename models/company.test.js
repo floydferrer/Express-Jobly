@@ -23,7 +23,7 @@ describe("create", function () {
     name: "New",
     description: "New Description",
     numEmployees: 1,
-    logoUrl: "http://new.img",
+    logoUrl: "http://new.img"
   };
 
   test("works", async function () {
@@ -162,6 +162,14 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [
+        {
+          'id': expect.any(Number),
+          'title': 't1',
+          'salary': 100000,
+          'equity': '1'
+        }
+      ]
     });
   });
 

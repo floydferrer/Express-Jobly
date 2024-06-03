@@ -1,6 +1,6 @@
 "use strict";
 
-/** Routes for companies. */
+/** Routes for jobs. */
 
 const jsonschema = require("jsonschema");
 const express = require("express");
@@ -15,11 +15,11 @@ const jobUpdateSchema = require("../schemas/jobUpdate.json");
 const router = new express.Router();
 
 
-/** POST / { company } =>  { company }
+/** POST / { job } =>  { job }
  *
- * company should be { handle, name, description, numEmployees, logoUrl }
+ * job should be { title, salary, equity, companyHandle }
  *
- * Returns { handle, name, description, numEmployees, logoUrl }
+ * Returns { title, salary, equity, companyHandle }
  *
  * Authorization required: Admin
  */
@@ -61,58 +61,41 @@ router.get("/", async function (req, res, next) {
   }
 });
 
-/** GET /[handle]  =>  { company }
+/** PATCH / { fld1, fld2, ... } => { job }
  *
- *  Company is { handle, name, description, numEmployees, logoUrl, jobs }
- *   where jobs is [{ id, title, salary, equity }, ...]
+ * Patches job data.
  *
- * Authorization required: none
+ * fields can be: { salary, hasEquity }
+ *
+ * Returns { title, salary, hasEquity, companyHandle }
+ *
+ * Authorization required: admin
  */
 
-router.get("/:title", async function (req, res, next) {
+router.patch("/", ensureAdmin, async function (req, res, next) {
   try {
-    const job = await Job.get(req.params.title);
+    const validator = jsonschema.validate(req.body, jobUpdateSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
+    }
+
+    const job = await Job.update(req.body.title, req.body);
     return res.json({ job });
   } catch (err) {
     return next(err);
   }
 });
 
-/** PATCH /[handle] { fld1, fld2, ... } => { company }
+/** DELETE / { title }  =>  { deleted: title }
  *
- * Patches company data.
- *
- * fields can be: { name, description, numEmployees, logo_url }
- *
- * Returns { handle, name, description, numEmployees, logo_url }
- *
- * Authorization required: login
+ * Authorization: admin
  */
 
-router.patch("/:handle", ensureAdmin, async function (req, res, next) {
+router.delete("/", ensureAdmin, async function (req, res, next) {
   try {
-    const validator = jsonschema.validate(req.body, companyUpdateSchema);
-    if (!validator.valid) {
-      const errs = validator.errors.map(e => e.stack);
-      throw new BadRequestError(errs);
-    }
-
-    const company = await Company.update(req.params.handle, req.body);
-    return res.json({ company });
-  } catch (err) {
-    return next(err);
-  }
-});
-
-/** DELETE /[handle]  =>  { deleted: handle }
- *
- * Authorization: login
- */
-
-router.delete("/:handle", ensureAdmin, async function (req, res, next) {
-  try {
-    await Company.remove(req.params.handle);
-    return res.json({ deleted: req.params.handle });
+    await Job.remove(req.body.title);
+    return res.json({ deleted: req.body.title });
   } catch (err) {
     return next(err);
   }
