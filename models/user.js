@@ -2,11 +2,14 @@
 
 const db = require("../db");
 const bcrypt = require("bcrypt");
-const { sqlForPartialUpdate } = require("../helpers/sql");
+const {
+  sqlForPartialUpdate,
+  sqlForApply
+} = require("../helpers/sql");
 const {
   NotFoundError,
   BadRequestError,
-  UnauthorizedError,
+  UnauthorizedError
 } = require("../expressError");
 
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
@@ -118,7 +121,7 @@ class User {
   /** Given a username, return data about user.
    *
    * Returns { username, first_name, last_name, is_admin, jobs }
-   *   where jobs is { id, title, company_handle, company_name, state }
+   *   where jobs is { [job_id, job_id, ...] }
    *
    * Throws NotFoundError if user not found.
    **/
@@ -132,11 +135,20 @@ class User {
                   is_admin AS "isAdmin"
            FROM users
            WHERE username = $1`,
-        [username],
+        [username]
+    );
+    const appRes = await db.query(
+          `SELECT a.job_id AS "jobId"
+           FROM applications AS a 
+           JOIN users AS u
+           ON u.username = a.username
+           WHERE u.username = $1`,
+        [username]
     );
 
+    let apps = appRes.rows.map(a => a.jobId)
     const user = userRes.rows[0];
-
+    user.jobs = apps;
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
     return user;
@@ -188,6 +200,47 @@ class User {
 
     delete user.password;
     return user;
+  }
+
+  /** Delete given user from database; returns undefined. */
+
+  static async remove(username) {
+    let result = await db.query(
+          `DELETE
+           FROM users
+           WHERE username = $1
+           RETURNING username`,
+        [username],
+    );
+    const user = result.rows[0];
+
+    if (!user) throw new NotFoundError(`No user: ${username}`);
+  }
+
+  static async apply(app) {
+    const duplicateCheck = await db.query(
+      `SELECT username, job_id
+       FROM applications
+       WHERE username = $1 AND job_id = $2`,
+    [app.username, app.jobId],
+    );
+
+    if (duplicateCheck.rows[0]) {
+      throw new BadRequestError(`Duplicate application: ${app.username}, jobId: ${app.jobId}`);
+    }
+    const result = await db.query(`
+            INSERT INTO applications
+            (username, job_id)
+            VALUES ($1, $2) 
+            RETURNING job_id AS "jobId"`,
+            [app.username, app.jobId]);
+    const application = result.rows[0];
+    console.log('application');
+    console.log(application);
+
+    if (!application) throw new NotFoundError(`No application`);
+
+    return application;
   }
 
   /** Delete given user from database; returns undefined. */

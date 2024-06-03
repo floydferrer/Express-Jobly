@@ -96,4 +96,20 @@ function sqlForJobFilter(dataToUpdate, jsToSql) {
   };
 }
 
-module.exports = { sqlForPartialUpdate, sqlForCompanyFilter, sqlForJobFilter };
+
+// Using object parameter consisting of model parameters, creates SQL logic that is passed into model's update function that completes SQL update logic and updates model parameters within respective database table.
+
+function sqlForApply(dataToUpdate, jsToSql) {
+  const keys = Object.keys(dataToUpdate);
+  if (keys.length === 0) throw new BadRequestError("No data");
+  // {firstName: 'Aliya', age: 32} => ['"first_name"=$1', '"age"=$2']
+  const cols = keys.map((colName, idx) =>
+    `"${jsToSql[colName] || colName}"=$${idx + 1}`
+  );
+  return {
+    setCols: cols.join(", "),
+    values: Object.values(dataToUpdate)
+  };
+}
+
+module.exports = { sqlForPartialUpdate, sqlForCompanyFilter, sqlForJobFilter, sqlForApply };
