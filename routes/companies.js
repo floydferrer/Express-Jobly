@@ -53,7 +53,6 @@ router.post("/", ensureAdmin, async function (req, res, next) {
 router.get("/", async function (req, res, next) {
   try {
     const data = req.body;
-    console.log(data);
     const companies = await Company.findAll(data);
     return res.json({ companies });
   } catch (err) {

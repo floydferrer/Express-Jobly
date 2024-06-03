@@ -236,8 +236,7 @@ class User {
             RETURNING job_id AS "jobId"`,
             [app.username, app.jobId]);
     const application = result.rows[0];
-    console.log('application');
-    console.log(application);
+
 
     if (!application) throw new NotFoundError(`No application`);
 

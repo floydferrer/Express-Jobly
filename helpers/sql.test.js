@@ -14,7 +14,6 @@ describe("SQL data", function () {
             isAdmin: 'is_admin',
           }
         const res = sqlForPartialUpdate(data, js)
-        console.log(res.setCols);
       expect(res.setCols.replaceAll('"', "'")).toEqual("'first_name'=$1, 'last_name'=$2, 'is_admin'=$3")
     });
 })

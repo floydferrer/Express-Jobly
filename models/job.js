@@ -60,8 +60,6 @@ class Job {
           hasEquity: "equity"
         }
       )
-      // let cols = setCols.map(c => c);
-      // console.log(cols);
       whereSql = ` WHERE ${setCols.trim().replaceAll(',', ' AND')}`;
       valuesSql = values;
     }
@@ -108,7 +106,6 @@ class Job {
                                 company_handle AS "companyHandle"`;
     const result = await db.query(querySql, [...values, title]);
     const job = result.rows[0];
-    console.log(job);
     if (!job) throw new NotFoundError(`No job: ${title}`);
 
     return job;

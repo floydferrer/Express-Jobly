@@ -52,7 +52,7 @@ class Company {
   static async findAll(data) {
     let whereSql = ''
     let valuesSql;
-    // console.log(Object.keys(data).length);
+  
     if(Object.keys(data).length > 0) {
       const { setCols, values } = sqlForCompanyFilter(
         data,
@@ -62,15 +62,9 @@ class Company {
           maxEmployees: "num_employees"
         }
       )
-      // let cols = setCols.map(c => c);
-      // console.log(cols);
-      whereSql = ` WHERE ${setCols.replaceAll(',', ' AND')}`; //need to map out each setCols and combine with 'AND'
+      whereSql = ` WHERE ${setCols.replaceAll(',', ' AND')}`;
       valuesSql = values;
-      console.log('whereSql: ' + whereSql);
-      console.log('setCols: ' + setCols);
-      console.log('values: ' + values);
     }
-    console.log('valuesSql: ' +valuesSql);
     const querySql = `
       SELECT handle,
       name,
@@ -80,7 +74,6 @@ class Company {
       FROM companies` +
       whereSql +
       ` ORDER BY name`
-    console.log('querySql: ' + querySql);
     const companiesRes = await db.query(querySql, (Object.keys(data).length > 0) ? [...valuesSql] : '');
     return companiesRes.rows;
   }

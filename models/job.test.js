@@ -142,7 +142,6 @@ describe("update", function () {
 
   test("works", async function () {
     let job = await Job.update("t1", updateData);
-    console.log(job)
     expect(job.title).toEqual("t1");
     expect(job.salary).toEqual(202000);
     expect(job.equity).toEqual("0.2");

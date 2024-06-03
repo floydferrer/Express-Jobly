@@ -57,19 +57,8 @@ router.post("/", ensureAdmin, async function (req, res, next) {
 
 router.post("/:username/jobs/:jobId", authenticateJWT,  async function (req, res, next) {
   try {
-    // const validator = jsonschema.validate(req.params.username, userNewSchema);
-    // console.log(validator);
-    // if (!validator.valid) {
-    //   const errs = validator.errors.map(e => e.stack);
-    //   throw new BadRequestError(errs);
-    // }
-    console.log('test');
-    console.log(req.params.username);
-    console.log(res.locals.user.username);
     if(!res.locals.user.isAdmin && req.params.username !== res.locals.user.username) throw new UnauthorizedError();
-    console.log(req.params);
     const user = await User.apply(req.params);
-    console.log(user.jobid)
     return res.json({ applied: user.jobId });
   } catch (err) {
     return next(err);
