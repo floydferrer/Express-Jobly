@@ -61,7 +61,7 @@ router.get("/", async function (req, res, next) {
   }
 });
 
-/** PATCH / { fld1, fld2, ... } => { job }
+/** PATCH / { title, fld1, fld2, ... } => { job }
  *
  * Patches job data.
  *

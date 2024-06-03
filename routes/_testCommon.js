@@ -65,6 +65,13 @@ async function commonBeforeAll() {
         VALUES  ('t1', 100000, 1, 'c1'),
                 ('t3', 250000, 0, 'c3')
         `);
+  // console.log(await db.query(`SELECT id FROM jobs WHERE title = 't1'`))
+  const res = await db.query(`SELECT id FROM jobs WHERE title = 't1'`)
+  // console.log(res.rows[0].id)
+  await User.apply({
+    username: "u1",
+    jobId: res.rows[0].id
+  });
 }
 
 async function commonBeforeEach() {

@@ -148,8 +148,9 @@ class User {
 
     let apps = appRes.rows.map(a => a.jobId)
     const user = userRes.rows[0];
-    user.jobs = apps;
+
     if (!user) throw new NotFoundError(`No user: ${username}`);
+    user.jobs = apps;
 
     return user;
   }

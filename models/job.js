@@ -70,7 +70,7 @@ class Job {
       SELECT title,
       salary,
       equity,
-      company_handle
+      company_handle AS "companyHandle"
       FROM jobs` +
       whereSql +
       ` ORDER BY title`
@@ -105,7 +105,7 @@ class Job {
                       RETURNING title, 
                                 salary, 
                                 equity, 
-                                company_handle`;
+                                company_handle AS "companyHandle"`;
     const result = await db.query(querySql, [...values, title]);
     const job = result.rows[0];
     console.log(job);

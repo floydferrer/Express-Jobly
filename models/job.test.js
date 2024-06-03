@@ -65,19 +65,19 @@ describe("findAll", function () {
     let jobs = await Job.findAll({});
     expect(jobs).toEqual([
       {
-        company_handle: "c1",
+        companyHandle: "c1",
         equity: "1",
         salary: 100000,
         title: "t1"
       },
       {
-        company_handle: "c2",
+        companyHandle: "c2",
         equity: "0.5",
         salary: 200000,
         title: "t2"
       },
       {
-        company_handle: "c3",
+        companyHandle: "c3",
         equity: "0",
         salary: 250000,
         title: "t3"
@@ -88,7 +88,7 @@ describe("findAll", function () {
     let jobs = await Job.findAll({"title": "t2"});
     expect(jobs).toEqual([
       {
-        company_handle: "c2",
+        companyHandle: "c2",
         equity: "0.5",
         salary: 200000,
         title: "t2"
@@ -99,13 +99,13 @@ describe("findAll", function () {
     let jobs = await Job.findAll({"minSalary": 105000});
     expect(jobs).toEqual([
       {
-        company_handle: "c2",
+        companyHandle: "c2",
         equity: "0.5",
         salary: 200000,
         title: "t2"
       },
       {
-        company_handle: "c3",
+        companyHandle: "c3",
         equity: "0",
         salary: 250000,
         title: "t3"
@@ -116,13 +116,13 @@ describe("findAll", function () {
     let jobs = await Job.findAll({"hasEquity": true});
     expect(jobs).toEqual([
       {
-        company_handle: "c1",
+        companyHandle: "c1",
         equity: "1",
         salary: 100000,
         title: "t1"
       },
       {
-        company_handle: "c2",
+        companyHandle: "c2",
         equity: "0.5",
         salary: 200000,
         title: "t2"
@@ -142,20 +142,21 @@ describe("update", function () {
 
   test("works", async function () {
     let job = await Job.update("t1", updateData);
+    console.log(job)
     expect(job.title).toEqual("t1");
     expect(job.salary).toEqual(202000);
     expect(job.equity).toEqual("0.2");
-    expect(job.company_handle).toEqual("c1")
+    expect(job.companyHandle).toEqual("c1")
 
     const result = await db.query(
-          `SELECT title, salary, equity, company_handle
+          `SELECT title, salary, equity, company_handle AS "companyHandle"
            FROM jobs
            WHERE title = 't1'`);
     expect(result.rows).toEqual([{
       title: "t1",
       salary: 202000,
       equity: "0.2",
-      company_handle: "c1"
+      companyHandle: "c1"
     }]);
   });
 
@@ -169,17 +170,17 @@ describe("update", function () {
     expect(job.title).toEqual("t1");
     expect(job.salary).toEqual(202000);
     expect(job.equity).toEqual(null);
-    expect(job.company_handle).toEqual("c1");
+    expect(job.companyHandle).toEqual("c1");
 
     const result = await db.query(
-        `SELECT title, salary, equity, company_handle
+        `SELECT title, salary, equity, company_handle AS "companyHandle"
          FROM jobs
          WHERE title = 't1'`);
     expect(result.rows).toEqual([{
         title: "t1",
         salary: 202000,
         equity: null,
-        company_handle: "c1"
+        companyHandle: "c1"
     }]);
   });
 
